@@ -1,0 +1,62 @@
+# rust/api/Cargo.toml
+[package]
+name = "amd-security-api"
+version = "1.0.0"
+edition = "2021"
+authors = ["AMD Security Layer Team"]
+description = "High-performance Rust API backend for threat detection"
+
+[dependencies]
+# Web framework
+actix-web = "4"
+actix-rt = "2"
+tokio = { version = "1", features = ["full"] }
+
+# Async/Future utilities
+futures = "0.3"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "sqlite"] }
+
+# Logging
+log = "0.4"
+env_logger = "0.10"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Security
+ring = "0.17"
+sha2 = "0.10"
+hex = "0.4"
+
+# HTTP client
+reqwest = { version = "0.11", features = ["json"] }
+
+# Cache
+lru = "0.12"
+
+# Metrics
+prometheus = "0.13"
+
+# Configuration
+config = "0.13"
+
+[dev-dependencies]
+tokio-test = "0.4"
+actix-rt = "2"
+
+[[bin]]
+name = "amd-security-api"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,51 @@
+amd_security_layer/
+├── README.md                          # Project overview and setup guide
+├── requirements.txt                   # Python dependencies
+├── setup.py                          # Package installation configuration
+├── config/
+│   ├── __init__.py
+│   ├── settings.py                   # Configuration and constants
+│   └── logger.py                     # Logging setup
+├── src/
+│   ├── __init__.py
+│   ├── threat_detection/
+│   │   ├── __init__.py
+│   │   ├── phishing_detector.py      # Phishing link detection model
+│   │   ├── malware_detector.py       # Malware/suspicious script detection
+│   │   └── behavior_analyzer.py      # Behavioral anomaly detection
+│   ├── hardware_acceleration/
+│   │   ├── __init__.py
+│   │   ├── onnx_runtime_manager.py   # ONNX Runtime initialization
+│   │   ├── rocm_accelerator.py       # ROCm GPU/NPU acceleration
+│   │   └── model_optimizer.py        # Model quantization and optimization
+│   ├── explainability/
+│   │   ├── __init__.py
+│   │   ├── threat_explainer.py       # Plain-language threat explanation
+│   │   └── nlp_utils.py              # NLP utilities for explanations
+│   ├── security_core/
+│   │   ├── __init__.py
+│   │   ├── threat_engine.py          # Main threat detection engine
+│   │   ├── alert_manager.py          # Alert generation and management
+│   │   └── privacy_shield.py         # On-device data protection
+│   └── ui/
+│       ├── __init__.py
+│       ├── alert_ui.py               # Desktop notification/alert UI
+│       └── settings_ui.py            # Settings panel
+├── models/
+│   ├── phishing_model.onnx           # Placeholder for ONNX model
+│   └── malware_model.onnx            # Placeholder for ONNX model
+├── data/
+│   ├── phishing_patterns.json        # Known phishing patterns database
+│   └── malware_signatures.json       # Malware signature database
+├── tests/
+│   ├── __init__.py
+│   ├── test_threat_detection.py      # Unit tests for detection modules
+│   ├── test_hardware_acceleration.py # GPU/NPU acceleration tests
+│   └── test_integration.py           # Integration tests
+├── demos/
+│   ├── demo_phishing_detection.py    # Demo script for phishing detection
+│   └── threat_alert_demo.py          # Demo alert generation
+└── docs/
+    ├── ARCHITECTURE.md               # Detailed architecture documentation
+    ├── IMPLEMENTATION_GUIDE.md       # How to implement remaining half
+    └── API_REFERENCE.md              # API documentation

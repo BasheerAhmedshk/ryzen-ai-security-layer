@@ -1,0 +1,128 @@
+# docker-compose.yml
+version: '3.9'
+
+services:
+  # Rust API Backend (Primary)
+  rust-api:
+    build:
+      context: ./rust/api
+      dockerfile: Dockerfile
+    container_name: amd-security-api
+    ports:
+      - "8080:8080"
+    environment:
+      - RUST_LOG=info
+      - API_WORKERS=4
+      - CACHE_SIZE=10000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - amd-security
+    depends_on:
+      - redis
+
+  # Python Orchestrator
+  python-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: amd-security-python
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - API_URL=http://rust-api:8080
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - amd-security
+    depends_on:
+      rust-api:
+        condition: service_healthy
+
+  # Java Enterprise Service
+  java-service:
+    build:
+      context: ./java/enterprise
+      dockerfile: Dockerfile
+    container_name: amd-security-java
+    ports:
+      - "9090:9090"
+    environment:
+      - JAVA_OPTS=-Xmx2g -Xms512m
+      - API_URL=http://rust-api:8080
+      - THREAD_POOL_SIZE=8
+      - CACHE_SIZE=10000
+    networks:
+      - amd-security
+    depends_on:
+      rust-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Redis Cache (Shared)
+  redis:
+    image: redis:7-alpine
+    container_name: amd-security-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - amd-security
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Prometheus Metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: amd-security-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - amd-security
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: amd-security-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana-dashboards:/etc/grafana/provisioning/dashboards
+    networks:
+      - amd-security
+    depends_on:
+      - prometheus
+
+networks:
+  amd-security:
+    driver: bridge
+
+volumes:
+  redis-data:
+  prometheus-data:
+  grafana-data:

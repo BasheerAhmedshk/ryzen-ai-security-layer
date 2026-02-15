@@ -1,0 +1,142 @@
+# Dockerfile - Root (Python)
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy Python code
+COPY . .
+
+# Create logs directory
+RUN mkdir -p logs data
+
+# Expose port
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Run application
+CMD ["python", "-m", "src.security_core.threat_engine"]
+
+---
+
+# rust/api/Dockerfile - Rust API
+FROM rust:1.70 as builder
+
+WORKDIR /api
+COPY . .
+
+# Build with release optimizations
+RUN cargo build --release
+
+# Runtime image
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libssl3 \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy binary from builder
+COPY --from=builder /api/target/release/amd-security-api /app/
+
+# Expose port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
+
+# Run application
+CMD ["/app/amd-security-api"]
+
+---
+
+# java/enterprise/Dockerfile - Java Service
+FROM maven:3.9-eclipse-temurin-17 as builder
+
+WORKDIR /build
+COPY . .
+
+# Build JAR
+RUN mvn clean package -DskipTests
+
+# Runtime image
+FROM eclipse-temurin:17-jre-jammy
+
+WORKDIR /app
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copy JAR from builder
+COPY --from=builder /build/target/*-with-dependencies.jar app.jar
+
+# Expose port
+EXPOSE 9090
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
+    CMD curl -f http://localhost:9090/health || exit 1
+
+# Run application
+ENTRYPOINT ["java"]
+CMD ["-jar", "app.jar"]
+
+---
+
+# cpp/Dockerfile - C++ Engine
+FROM ubuntu:22.04 as builder
+
+WORKDIR /build
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    libssl-dev \
+    libfmt-dev \
+    libomp-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy C++ code
+COPY . .
+
+# Build
+RUN mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make -j$(nproc)
+
+# Runtime image
+FROM ubuntu:22.04
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    libssl3 \
+    libomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy libraries from builder
+COPY --from=builder /build/build/*.so* /app/
+
+# Export library path
+ENV LD_LIBRARY_PATH=/app:$LD_LIBRARY_PATH
+
+CMD ["/bin/bash"]
