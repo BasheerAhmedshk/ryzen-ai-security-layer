@@ -139,7 +139,7 @@ Explainer → Alert UI
 
 This project demonstrates how AMD Ryzen AI hardware can revolutionize cybersecurity by bringing enterprise-grade threat detection to consumer devices with zero latency and maximum privacy.
 
-**Contest:** AMD Slingshot Hackathon 2024  
+**Contest:** AMD Slingshot Hackathon 2026 
 **Motto:** Human Imagination Built with AI
 
 ---
