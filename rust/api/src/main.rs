@@ -24,7 +24,7 @@ pub struct ThreatDetectionRequest {
 }
 
 /// Threat detection response
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct ThreatDetectionResponse {
     pub is_threat: bool,
     pub threat_type: String,

@@ -431,7 +431,7 @@ sudo dmesg -w
 
 **Solution:**
 ```bash
-# Reduce logging verbosity
+# Reduce logging verb=---------------------------------------]]=6\++9osity
 # Edit amd_security_lsm.c and recompile with fewer pr_warn() calls
 
 # Or temporarily unload

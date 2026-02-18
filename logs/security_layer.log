@@ -1,0 +1,12 @@
+2026-02-18 10:06:48,517 - src.threat_detection.phishing_detector - INFO - PhishingDetector initialized
+2026-02-18 10:06:48,730 - src.threat_detection.malware_detector - INFO - MalwareDetector initialized
+2026-02-18 10:06:48,738 - src.threat_detection.behavior_analyzer - INFO - BehaviorAnalyzer initialized
+2026-02-18 10:06:48,744 - src.threat_detection.behavior_analyzer - INFO - ActionCollector initialized
+2026-02-18 10:06:48,751 - src.explainability.threat_explainer - INFO - ThreatExplainer initialized
+2026-02-18 10:06:48,780 - __main__ - INFO - ThreatEngine initialized
+2026-02-18 10:06:48,804 - __main__ - INFO - ThreatEngine started
+2026-02-18 10:06:48,810 - src.threat_detection.phishing_detector - INFO - Phishing detection - URL: https://paypa1.com/login... - Score: 0.18
+2026-02-18 10:06:48,816 - src.threat_detection.malware_detector - INFO - Malware detection - Source: script - Score: 0.08
+2026-02-18 10:06:48,819 - src.threat_detection.phishing_detector - INFO - Phishing detection - URL: https://bank-verify.com/update... - Score: 0.18
+2026-02-18 10:06:48,822 - __main__ - INFO - Unified detection - Type: url - Threats: 0 - Latency: 2.49ms
+2026-02-18 10:06:49,051 - __main__ - INFO - ThreatEngine stopped
